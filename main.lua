@@ -7,7 +7,7 @@ C = castle
 local code = [[
 local radius = 40
 
-function uiupdate()
+function panel()
     radius = C.ui.slider('radius', radius, 20, 100)
 end
 
@@ -50,16 +50,16 @@ end
 
 
 function castle.uiupdate()
-    C.ui.section('controls', function()
-        safeCall(namespace.uiupdate)
-    end)
-
     C.ui.section('code', function()
         local newCode = C.ui.codeEditor('code', code)
         if newCode ~= code then
             code = newCode
             lastChangeTime = L.getTime()
         end
+    end)
+
+    C.ui.section('panel', function()
+        safeCall(namespace.panel)
     end)
 end
 
@@ -71,7 +71,9 @@ function love.update()
 end
 
 function love.draw()
-    safeCall(namespace.draw)
+    L.pushed('all', function()
+        safeCall(namespace.draw)
+    end)
 
     L.print('fps: ' .. L.getFPS(), 20, 20)
 end
