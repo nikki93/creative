@@ -14,11 +14,6 @@ function Mod:new()
     self.name = self.name or 'mod' .. self.id
     self.code = self.code or ''
 
-    self.lastCodeChangeTime = nil
-    self.errored = false
-
-    self.E = {}
-
     self:compile()
 
     return self
@@ -29,14 +24,16 @@ function Mod:compile()
     self.lastCodeChangeTime = nil
     self.errored = false
 
-    local env = setmetatable({ E = self.E }, { __index = _G })
-    local compiled, err = load(self.code, 'code', 't', env)
-
-    if compiled then
-        self:safeCall(compiled)
-    else
+    local env = setmetatable({
+        restored = self.env or {},
+    }, { __index = _G })
+    local compiled, err = load(self.code, self.name, 't', env)
+    if not compiled then
         self:error(err)
     end
+    self:safeCall(compiled)
+ 
+    self.env = env
 end
 
 function Mod:error(err)
@@ -52,7 +49,7 @@ function Mod:safeCall(nameOrFunc, ...)
 
     local func
     if type(nameOrFunc) == 'string' then
-        func = self.E[nameOrFunc]
+        func = self.env[nameOrFunc]
     else
         func = nameOrFunc
     end
@@ -66,19 +63,12 @@ function Mod:safeCall(nameOrFunc, ...)
 end
 
 
-function Mod:ui(props)
-    props = props or {}
-
-    L.ui.section(self.name, { defaultOpen = props.defaultOpen }, function()
-        self.code = L.ui.codeEditor('code', self.code, {
-            hideLabel = true,
-            onChange = function()
-                self.lastCodeChangeTime = L.getTime()
-            end,
-        })
-
-        self:safeCall('ui')
-    end)
+function Mod:codeEditor(label, props)
+    local newCode = L.ui.codeEditor(label, self.code, props)
+    if newCode ~= self.code then
+        self.code = newCode
+        self.lastCodeChangeTime = L.getTime()
+    end
 
     if self.lastCodeChangeTime ~= nil and L.getTime() - self.lastCodeChangeTime >= 0.4 then
         self:compile()
