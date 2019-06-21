@@ -67,7 +67,7 @@ function castle.uiupdate()
 end
 
 function love.update()
-    if lastChangeTime ~= nil and L.getTime() - lastChangeTime > 0.08 then
+    if lastChangeTime ~= nil and L.getTime() - lastChangeTime > 0.4 then
         lastChangeTime = nil
         compile()
     end
