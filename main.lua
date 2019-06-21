@@ -2,13 +2,14 @@
 
 L = require('https://raw.githubusercontent.com/nikki93/L/ff3406daa415076c1207b6894c00af61bc7405c4/L.lua')
 C = castle
+U = C.ui
 
 
 local code = [[
 local radius = 40
 
 function panel()
-    radius = C.ui.slider('radius', radius, 20, 100)
+    radius = U.slider('radius', radius, 20, 100)
 end
 
 function draw()
@@ -50,15 +51,15 @@ end
 
 
 function castle.uiupdate()
-    C.ui.section('code', function()
-        local newCode = C.ui.codeEditor('code', code)
+    U.section('code', function()
+        local newCode = U.codeEditor('code', code)
         if newCode ~= code then
             code = newCode
             lastChangeTime = L.getTime()
         end
     end)
 
-    C.ui.section('panel', function()
+    U.section('panel', function()
         safeCall(namespace.panel)
     end)
 end
