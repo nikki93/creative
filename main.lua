@@ -51,7 +51,7 @@ end
 
 
 function castle.uiupdate()
-    U.section('code', { defaultOpen = true}, function()
+    U.section('code', { defaultOpen = true }, function()
         local newCode = U.codeEditor('code', code, {
             hideLabel = true,
         })
