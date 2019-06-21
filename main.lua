@@ -1,15 +1,13 @@
 -- Global libary aliases
 
-L = require('https://raw.githubusercontent.com/nikki93/L/ff3406daa415076c1207b6894c00af61bc7405c4/L.lua')
-C = castle
-U = C.ui
+L = require('https://raw.githubusercontent.com/nikki93/L/3f63e72eef6b19a9bab9a937e17e527ae4e22230/L.lua')
 
 
 local code = [[
 local radius = 40
 
 function panel()
-    radius = U.slider('radius', radius, 20, 100)
+    radius = L.ui.slider('radius', radius, 20, 100)
 end
 
 function draw()
@@ -51,8 +49,8 @@ end
 
 
 function castle.uiupdate()
-    U.section('code', { defaultOpen = true }, function()
-        local newCode = U.codeEditor('code', code, {
+    L.ui.section('code', { defaultOpen = true }, function()
+        local newCode = L.ui.codeEditor('code', code, {
             hideLabel = true,
         })
         if newCode ~= code then
@@ -61,7 +59,7 @@ function castle.uiupdate()
         end
     end)
 
-    U.section('panel', { defaultOpen = true }, function()
+    L.ui.section('panel', { defaultOpen = true }, function()
         safeCall(namespace.panel)
     end)
 end
@@ -74,7 +72,7 @@ function love.update()
 end
 
 function love.draw()
-    L.pushed('all', function()
+    L.stacked('all', function()
         safeCall(namespace.draw)
     end)
 
