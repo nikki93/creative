@@ -70,7 +70,7 @@ function Mod:ui(props)
     props = props or {}
 
     L.ui.section(self.name, { defaultOpen = props.defaultOpen }, function()
-        L.ui.codeEditor('code', self.code, {
+        self.code = L.ui.codeEditor('code', self.code, {
             hideLabel = true,
             onChange = function()
                 self.lastCodeChangeTime = L.getTime()
