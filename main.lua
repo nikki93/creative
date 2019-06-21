@@ -51,21 +51,23 @@ end
 
 
 function castle.uiupdate()
-    U.section('code', function()
-        local newCode = U.codeEditor('code', code)
+    U.section('code', { defaultOpen = true}, function()
+        local newCode = U.codeEditor('code', code, {
+            hideLabel = true,
+        })
         if newCode ~= code then
             code = newCode
             lastChangeTime = L.getTime()
         end
     end)
 
-    U.section('panel', function()
+    U.section('panel', { defaultOpen = true }, function()
         safeCall(namespace.panel)
     end)
 end
 
 function love.update()
-    if lastChangeTime ~= nil and L.getTime() - lastChangeTime > 0.8 then
+    if lastChangeTime ~= nil and L.getTime() - lastChangeTime > 0.08 then
         lastChangeTime = nil
         compile()
     end
