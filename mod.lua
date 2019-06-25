@@ -9,8 +9,18 @@ local function generateId()
     return id
 end
 
-local allByName = {}
+
 local allById = {}
+local allByName = {}
+
+
+function Mod.byName(name)
+    return allByName[name]
+end
+
+function Mod.allByName()
+    return allByName
+end
 
 
 function Mod:new()
@@ -20,8 +30,7 @@ function Mod:new()
     self.id = generateId()
     allById[self.id] = self
 
-    self.name = self.name or 'mod' .. self.id
-    allByName[self.name] = self
+    self:rename(self.name or 'mod' .. self.id)
 
     self.code = self.code or ''
     self:compile()
@@ -29,12 +38,32 @@ function Mod:new()
     return self
 end
 
+function Mod:rename(newName)
+    assert(not allByName[newName], "mod with name '" .. newName .. "' already exists")
+    allByName[self.name] = nil
+    self.name = newName
+    allByName[self.name] = self
+end
+
+function Mod:delete()
+    allById[self.id] = nil
+    allByName[self.name] = nil
+    self._proxyMeta.__index = function()
+        error("use of deleted mod '" .. self.name .. "'")
+    end
+end
+
+
+local function modRequire(name)
+    return assert(allByName[name], "no module named '" .. name .. "'").proxy
+end
 
 function Mod:compile()
     self._lastCodeChangeTime = nil
     self._errored = false
 
     local env = setmetatable({
+        require = modRequire,
         restored = self._env or {},
     }, { __index = _G })
     local compiled, err = load(self.code, self.name, 't', env)

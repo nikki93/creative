@@ -4,26 +4,10 @@ L = require('https://raw.githubusercontent.com/nikki93/L/3f63e72eef6b19a9bab9a93
 local Mod = require 'mod'
 
 
-local mods = {}
-
-
-function refer(modName)
-    return assert(mods[modName], "no module named '" .. modName .. "'").proxy
-end
-
-function add(mod)
-    mods[mod.name] = mod
-end
-
-function remove(mod)
-    mods[mod.name] = nil
-end
-
-
 local selectedModName = nil
 
 function castle.uiupdate()
-    local selectedMod = mods[selectedModName]
+    local selectedMod = Mod.byName(selectedModName)
     if not selectedMod then
         selectedModName = nil
     end
@@ -31,8 +15,8 @@ function castle.uiupdate()
     -- Dropdown box for selecting a mod
     do
         local modNames = {}
-        for _, mod in pairs(mods) do
-            table.insert(modNames, mod.name)
+        for name in pairs(Mod.allByName()) do
+            table.insert(modNames, name)
         end
         table.sort(modNames, function(a, b)
             return a:upper() < b:upper()
@@ -49,10 +33,8 @@ function castle.uiupdate()
     if selectedMod then
         -- Name input
         local newName = L.ui.textInput('name', selectedMod.name)
-        if newName ~= selectedMod.name and mods[newName] == nil then
-            mods[selectedMod.name] = nil
-            selectedMod.name = newName
-            mods[newName] = selectedMod
+        if newName ~= selectedMod.name and not Mod.byName(newName) then
+            selectedMod:rename(newName)
             selectedModName = newName
         end
 
@@ -67,8 +49,9 @@ end
 
 function love.draw()
     L.stacked('all', function()
-        if mods['main'] then
-            mods['main']:safeCall('draw')
+        local main = Mod.byName('main')
+        if main then
+            main:safeCall('draw')
         end
     end)
 
@@ -76,7 +59,7 @@ function love.draw()
 end
 
 
-add(Mod.new({
+Mod.new({
     name = 'circle',
     code = [[
 radius = restored.radius or 40
@@ -89,15 +72,15 @@ function ui()
     radius = L.ui.slider('radius', radius, 20, 100)
 end
 ]],
-}))
+})
 
-add(Mod.new({
+Mod.new({
     name = 'main',
     code = [[
-circle = refer 'circle'
+circle = require 'circle'
 
 function draw()
     circle.draw()
 end
 ]],
-}))
+})
