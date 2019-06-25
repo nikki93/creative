@@ -8,11 +8,7 @@ local mods = {}
 
 
 function refer(modName)
-    local foundMod = mods[modName]
-    if foundMod then
-        return foundMod.env
-    end
-    return nil
+    return assert(mods[modName], "no module named '" .. modName .. "'").proxy
 end
 
 function add(mod)

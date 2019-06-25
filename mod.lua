@@ -34,6 +34,11 @@ function Mod:compile()
     self:safeCall(compiled)
  
     self.env = env
+    if not self.proxy then
+        self.proxyMeta = {}
+        self.proxy = setmetatable({}, self.proxyMeta)
+    end
+    self.proxyMeta.__index = env
 end
 
 function Mod:error(err)
