@@ -3,17 +3,27 @@ local Mod = {}
 
 local nextId = 1
 
+local function generateId()
+    local id = nextId
+    nextId = nextId + 1
+    return id
+end
+
+local allByName = {}
+local allById = {}
+
 
 function Mod:new()
     self = self or {}
     setmetatable(self, { __index = Mod })
 
-    self.id = nextId
-    nextId = nextId + 1
+    self.id = generateId()
+    allById[self.id] = self
 
     self.name = self.name or 'mod' .. self.id
-    self.code = self.code or ''
+    allByName[self.name] = self
 
+    self.code = self.code or ''
     self:compile()
 
     return self
@@ -21,11 +31,11 @@ end
 
 
 function Mod:compile()
-    self.lastCodeChangeTime = nil
-    self.errored = false
+    self._lastCodeChangeTime = nil
+    self._errored = false
 
     local env = setmetatable({
-        restored = self.env or {},
+        restored = self._env or {},
     }, { __index = _G })
     local compiled, err = load(self.code, self.name, 't', env)
     if not compiled then
@@ -33,28 +43,28 @@ function Mod:compile()
     end
     self:safeCall(compiled)
  
-    self.env = env
+    self._env = env
     if not self.proxy then
-        self.proxyMeta = {}
-        self.proxy = setmetatable({}, self.proxyMeta)
+        self._proxyMeta = {}
+        self.proxy = setmetatable({}, self._proxyMeta)
     end
-    self.proxyMeta.__index = env
+    self._proxyMeta.__index = env
 end
 
 function Mod:error(err)
-    self.errored = true
+    self._errored = true
     error(err, 0)
 end
 
 
 function Mod:safeCall(nameOrFunc, ...)
-    if self.errored then
+    if self._errored then
         return
     end
 
     local func
     if type(nameOrFunc) == 'string' then
-        func = self.env[nameOrFunc]
+        func = self._env[nameOrFunc]
     else
         func = nameOrFunc
     end
@@ -72,10 +82,10 @@ function Mod:codeEditor(label, props)
     local newCode = L.ui.codeEditor(label, self.code, props)
     if newCode ~= self.code then
         self.code = newCode
-        self.lastCodeChangeTime = L.getTime()
+        self._lastCodeChangeTime = L.getTime()
     end
 
-    if self.lastCodeChangeTime ~= nil and L.getTime() - self.lastCodeChangeTime >= 0.4 then
+    if self._lastCodeChangeTime ~= nil and L.getTime() - self._lastCodeChangeTime >= 0.4 then
         self:compile()
     end
 end

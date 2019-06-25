@@ -39,6 +39,7 @@ function castle.uiupdate()
         end)
         selectedModName = L.ui.dropdown('Selected mod name', selectedModName, modNames, {
             hideLabel = true,
+            placeholder = 'Select a module...',
         })
     end
 
@@ -58,8 +59,8 @@ function castle.uiupdate()
         -- Code editor
         selectedMod:codeEditor('code')
 
-        -- Panel
-        selectedMod:safeCall('panel')
+        -- UI
+        selectedMod:safeCall('ui')
     end
 end
 
@@ -84,7 +85,7 @@ function draw()
     L.circle('fill', 200, 300, radius)
 end
 
-function panel()
+function ui()
     radius = L.ui.slider('radius', radius, 20, 100)
 end
 ]],
