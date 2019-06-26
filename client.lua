@@ -75,11 +75,13 @@ function client.draw()
         do -- Main
             local main = Mod.byName('client')
             if main then
-                main:safeCall('draw')
+                L.stacked('all', function()
+                    main:safeCall('draw')
+                end)
             end
         end
     else -- Not connected
-        love.graphics.print('\n\nConnecting...', 20, 20)
+        L.print('\n\nConnecting...', 20, 20)
     end
 
     L.print('fps: ' .. L.getFPS(), 20, 20)
