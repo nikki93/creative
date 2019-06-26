@@ -14,6 +14,14 @@ local allById = {}
 local allByName = {}
 
 
+function Mod.byId(id)
+    return allById[id]
+end
+
+function Mod.allById()
+    return allById
+end
+
 function Mod.byName(name)
     return allByName[name]
 end
