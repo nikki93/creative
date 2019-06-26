@@ -52,13 +52,6 @@ function castle.uiupdate()
 
     -- Editor for selected mod
     if selectedMod then
-        -- Name input
-        local newName = L.ui.textInput('name', selectedMod.name)
-        if newName ~= selectedMod.name and not Mod.byName(newName) then
-            selectedMod:rename(newName)
-            selectedModName = newName
-        end
-
         -- Code editor
         selectedMod:codeEditor('code')
 
