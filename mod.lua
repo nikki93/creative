@@ -59,7 +59,8 @@ local function modRequire(name)
 end
 
 function Mod:compile()
-    self._dirtyCodeTime = nil
+    self._editCode = self.code
+    self._editCodeTime = nil
     self._errored = false
 
     local env = setmetatable({
@@ -108,14 +109,14 @@ end
 
 
 function Mod:codeEditor(label, props)
-    local newCode = L.ui.codeEditor(label, self._dirtyCode or self.code, props)
-    if newCode ~= self._dirtyCode then
-        self._dirtyCode = newCode
-        self._dirtyCodeTime = L.getTime()
+    local newCode = L.ui.codeEditor(label, self._editCode, props)
+    if newCode ~= self._editCode then
+        self._editCode = newCode
+        self._editCodeTime = L.getTime()
     end
 
-    if self._dirtyCodeTime ~= nil and L.getTime() - self._dirtyCodeTime >= 0.4 then
-        self.code = self._dirtyCode
+    if self._editCodeTime ~= nil and L.getTime() - self._editCodeTime >= 0.4 then
+        self.code = self._editCode
         self:compile()
     end
 end
