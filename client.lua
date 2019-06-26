@@ -15,11 +15,16 @@ end
 local share = client.share
 local home = client.home
 
+local localS = state.new()
+localS:__autoSync(true)
+
+local localSFirstSync = true
+
 
 --- CONNECT
 
 function client.connect()
-    do -- Walk
+    do -- Home code
         home.code = {}
     end
 end
@@ -84,11 +89,34 @@ end
 --- UPDATE
 
 function client.update(dt)
-    for name, mod in pairs(Mod:allByName()) do
-        if home.code[name] ~= mod.code then
-            home.code[name] = mod.code
+    do -- Mod -> Home code
+        for name, mod in pairs(Mod:allByName()) do
+            if home.code[name] ~= mod.code then
+                home.code[name] = mod.code
+            end
         end
     end
+
+    do -- Local S changed
+        if not localSFirstSync then
+            local SDiff = localS:__diff(0)
+            if SDiff ~= nil then
+                client.send('SDiff', SDiff)
+            end
+            localS:__flush()
+        end
+    end
+end
+
+
+--- CHANGING
+
+function client.changing(diff)
+    if diff.S then -- Share S changing
+        customApply(localS, diff.S)
+        localS:__flush()
+    end
+    localSFirstSync = false
 end
 
 
@@ -100,12 +128,20 @@ function client.changed(diff)
             -- Notify
             print("client: server changed mod '" .. name .. "'")
 
+            -- Create local S if doesn't exist
+            if not localS[name] then
+                localS[name] = {}
+            end
+
             -- Update Mod
             local mod = Mod.byName(name)
             if not mod then -- New mod?
                 Mod.new({
                     name = name,
                     code = code,
+                    envBase = {
+                        S = localS[name],
+                    },
                 })
             elseif mod.code ~= code then -- Code changed?
                 mod.code = code

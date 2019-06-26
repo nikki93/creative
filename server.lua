@@ -24,10 +24,21 @@ function server.load()
             server = [[
 ]],
             client = [[
+S.radius = S.radius or 30
+
 function draw()
-    L.circle('fill', 200, 200, 40)
+    L.circle('fill', 200, 200, S.radius)
+end
+
+function ui()
+    S.radius = L.ui.slider('radius', S.radius, 10, 200)
 end
 ]],
+        }
+    end
+
+    do -- S
+        share.S = {
         }
     end
 end
@@ -45,6 +56,17 @@ function server.disconnect(clientId)
 end
 
 
+--- RECEIVE
+
+function server.receive(clientId, msg, ...)
+    if msg == 'SDiff' then
+        local SDiff = ...
+        assert(not SDiff.__exact, "can't apply exact `SDiff`s")
+        customApply(share.S, SDiff)
+    end
+end
+
+
 --- CHANGED
 
 function server.changed(clientId, diff)
@@ -58,16 +80,16 @@ function server.changed(clientId, diff)
                 share.code[name] = code
 
                 -- Update Mod
-                local mod = Mod.byName(name)
-                if not mod then -- New mod?
-                    Mod.new({
-                        name = name,
-                        code = code,
-                    })
-                elseif mod.code ~= code then -- Code changed?
-                    mod.code = code
-                    mod:compile()
-                end
+                -- local mod = Mod.byName(name)
+                -- if not mod then -- New mod?
+                --     Mod.new({
+                --         name = name,
+                --         code = code,
+                --     })
+                -- elseif mod.code ~= code then -- Code changed?
+                --     mod.code = code
+                --     mod:compile()
+                -- end
             end
         end
     end
