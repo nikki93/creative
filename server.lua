@@ -25,7 +25,7 @@ function server.load()
 ]],
             client = [[
 function draw()
-    L.circle('fill', 200, 200, 40, 40)
+    L.circle('fill', 200, 200, 40)
 end
 ]],
         }
