@@ -40,6 +40,8 @@ function Mod:new()
 
     self:rename(self.name or 'mod' .. self.id)
 
+    self.envBase = self.envBase or {}
+
     self.code = self.code or ''
     self:compile()
 
@@ -75,6 +77,9 @@ function Mod:compile()
         require = modRequire,
         restored = self._env or {},
     }, { __index = _G })
+    for k, v in pairs(self.envBase) do
+        env[k] = v
+    end
     local compiled, err = load(self.code, self.name, 't', env)
     if not compiled then
         self:error(err)
