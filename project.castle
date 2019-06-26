@@ -1,4 +1,6 @@
-main: main.lua
+main: main_castle.lua
 title: c r e a t i v e
 description: An experiment
 owner: nikki
+multiplayer:
+    - enabled: true
